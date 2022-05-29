@@ -1,0 +1,2 @@
+# SSO.Demo.SSO
+.NET Core，.NET6中JWT+OAuth2.0实现SSO
