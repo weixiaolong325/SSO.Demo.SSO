@@ -1,0 +1,64 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+   <script src="~/lib/jquery/dist/jquery.min.js"></script>
+   <script>
+       GetAccessToken();
+       //根据code获取token
+       function GetAccessToken(){
+   
+          var params=GetParam()
+                  //code
+          var authCode=params["authCode"]
+           var sessionCode=params["sessionCode"]
+          console.log('authcode',authCode)
+          var params={authCode,sessionCode}     
+$.ajax({
+  url:'/Account/GetAccessCode',
+  type:"POST",
+  data:JSON.stringify(params),
+  contentType:"application/json; charset=utf-8",
+  dataType:"json",
+  success: function(data){
+     console.log('token',data)
+     if(data.code===0) //成功
+     { 
+         console.log('设置cookie')
+         //把token存到 cookie,过期时间为token有效时间少一分钟
+         setCookie("token",data.data.token,data.data.expires-60,"/")
+         //刷新token,有效期1天
+         setCookie("refreshToken",data.data.refreshToken,24*60*60,"/")
+           setCookie("SessionCode",sessionCode,24*60*60,"/")
+         //跳转到主页
+          window.location.href="/Home/Index"
+     }
+  }})
+
+       }
+             //获取url参数
+        function GetParam()
+        {
+            var url = location.search; //获取url中"?"符后的字串
+            var theRequest = new Object();
+    if (url.indexOf("?") != -1) {
+    var str = url.substr(1);
+    strs = str.split("&");
+    for(var i = 0; i < strs.length; i ++) {
+    theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+    }
+    }
+    return theRequest;
+        }
+
+          //设置cookie
+            function setCookie(cname,cvalue,exseconds,path){
+        var d = new Date();
+        d.setTime(d.getTime()+(exseconds*1000));
+        var expires = "expires="+d.toGMTString();
+        path=path==""?"":";path="+path;
+        document.cookie = cname+"="+cvalue+"; "+expires+path;
+    }
+   </script>

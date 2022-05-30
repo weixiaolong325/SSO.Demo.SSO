@@ -1,0 +1,84 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">欢迎来到Web2</h1>
+    <p>Learn about <a href="https://web1.com:7001">跳转到Web1</a>.</p>
+            <p>Learn about <a onclick="logOut()" href="javascript:void(0);">退出登录</a>.</p>
+</div>
+@section Scripts{
+<script>
+                    getUserInfo()
+            //获取用户信息
+            function getUserInfo(){
+                //1.cookie是否有 token
+                const token=getCookie('token')
+                console.log('gettoken',token)
+                if(!token)
+                {
+                    redirectLogin()
+                }
+                $.ajax({
+          type: 'POST',
+          url: '/Account/GetUserInfo',
+          headers:{"Authorization":'Bearer ' + token},
+          success: success,
+          error:error
+        });
+            }
+            function success(){
+                console.log('成功')
+            }
+            function error(xhr, exception){
+                if(xhr.status===401) //未鉴权
+                {
+                    console.log('未鉴权')
+                    redirectLogin()
+                }
+            }
+                      //重定向到登录
+            function redirectLogin(){
+                    // window.location.href="https://localhost:7000/SSO/Login?clientId=web2&redirectUrl=https://localhost:7002/Account/LoginRedirect"
+             window.location.href="https://sso.com:7000/SSO/Login?clientId=web2&redirectUrl=https://web2.com:7002/Account/LoginRedirect"
+            }
+              //退出登录
+            function logOut(){
+                //清除cookie token
+                //清除cookie refreshToken
+                 //清除cookie 会话
+                clearCookie("token")
+                 clearCookie("refreshToken")
+                  clearCookie("sessionCode")
+
+               //跳转到SSO退出登录
+                    window.location.href="https://sso.com:7000/SSO/LogOut?clientId=web2&redirectUrl=https://web1.com:7001/Account/LoginRedirect"
+               
+            }
+
+
+
+    //获取cookie
+    function getCookie(cname){
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i].trim();
+            if (c.indexOf(name)==0) { return c.substring(name.length,c.length); }
+        }
+        return "";
+    }
+      //设置cookie
+            function setCookie(cname,cvalue,exseconds,path){
+        var d = new Date();
+        d.setTime(d.getTime()+(exseconds*1000));
+        var expires = "expires="+d.toGMTString();
+        path=path==""?"":";path="+path;
+        document.cookie = cname+"="+cvalue+"; "+expires+path;
+    }
+        //清除cookie  
+function clearCookie(name) {  
+    setCookie(name, "", -1);  
+}  
+</script>
+}

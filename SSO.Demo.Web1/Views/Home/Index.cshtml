@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+       <h1 class="display-4">欢迎来到Web1</h1>
+    <p>Learn about <a href="https://web2.com:7002">跳转到Web2</a>.</p>
+        <p>Learn about <a onclick="logOut()" href="javascript:void(0);">退出登录</a>.</p>
+</div>
+@section Scripts{
+    <script src="~/js/Common.js"></script>
+<script>
+                    getUserInfo()
+            //获取用户信息
+            function getUserInfo(){
+                //1.cookie是否有 token
+                const token=getCookie('token')
+                console.log('gettoken',token)
+                if(!token)
+                {
+                    redirectLogin()
+                }
+                $.ajax({
+          type: 'POST',
+          url: '/Account/GetUserInfo',
+          headers:{"Authorization":'Bearer ' + token},
+          success: success,
+          error:error
+        });
+            }
+            function success(){
+                console.log('成功')
+            }
+            function error(xhr, exception){
+                if(xhr.status===401) //鉴权失败
+                {
+                    console.log('未鉴权')
+                    redirectLogin()
+                }
+            }
+                      //重定向到登录
+            function redirectLogin(){
+                     window.location.href="https://sso.com:7000/SSO/Login?clientId=web1&redirectUrl=https://web1.com:7001/Account/LoginRedirect"
+            }
+            //退出登录
+            function logOut(){
+                clearCookie("token") //清除cookie token
+                 clearCookie("refreshToken") //清除cookie refreshToken
+                  clearCookie("sessionCode")  //清除cookie 会话
+
+                  //跳转到SSO退出登录
+                    window.location.href="https://sso.com:7000/SSO/LogOut?clientId=web1&redirectUrl=https://web1.com:7001/Account/LoginRedirect"
+               
+            }
+
+</script>
+}
+
+
+
+
